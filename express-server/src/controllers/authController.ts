@@ -1,35 +1,53 @@
 import { Request, Response } from 'express';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-import { User } from '../models/User';
+import { Pool } from 'mysql2/promise';
+import { z } from 'zod';
+import * as dotenv from "dotenv";
+import process from "process";
+dotenv.config();
 
+const userSchema = z.object({
+  email: z.string().email(),
+  password: z.string().min(6),
+});
 // User registration controller
-export const register = async (req: Request, res: Response) => {
+
+const register = (db: Pool) => async (req: Request, res: Response) => {
   try {
-    const { password, profile_picture } = req.body;
+    const { email, password } = userSchema.parse(req.body);
+
+    // Check if the user already exists
+    const [existingUser] = await db.query('SELECT * FROM users WHERE email = ?', [email]);
+    if ((existingUser as any[]).length > 0) {
+      return res.status(400).json({ error: 'User already exists' });
+    }
 
     // Password hashing
-    const hashedPassword = await bcrypt.hash(password, 10);
+    const saltRound = 10;
+    const salt = await bcrypt.genSalt(saltRound);
+    const hashedPassword = await bcrypt.hash(password, salt);
 
     // User creation
-    const user = await User.create({
-      password: hashedPassword,
-      profile_picture,
-    });
+    const [result] = await db.query(
+      'INSERT INTO users (email, password) VALUES (?, ?)',
+      [email, hashedPassword]
+    );
 
-    res.status(201).json({ message: 'User registered successfully', user });
+    res.status(201).json({ message: 'User registered successfully', userId: (result as any).insertId });
   } catch (error) {
     res.status(500).json({ error: 'Internal server error' });
   }
 };
 
 // User login controller
-export const login = async (req: Request, res: Response) => {
+const login = (db: Pool) => async (req: Request, res: Response) => {
   try {
-    const { id, password } = req.body;
+    const { email, password } = userSchema.parse(req.body);
 
     // User lookup
-    const user = await User.findOne({ where: { id } });
+    const [rows] = await db.query('SELECT * FROM users WHERE email = ?', [email]);
+    const user = (rows as any[])[0];
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
     }
@@ -41,10 +59,47 @@ export const login = async (req: Request, res: Response) => {
     }
 
     // JWT generation
-    const token = jwt.sign({ userId: user.id }, 'YOUR_SECRET_KEY', { expiresIn: '1h' });
+    const accessToken = jwt.sign({ userId: user.id }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '15m' });
+    const refreshToken = jwt.sign({ userId: user.id }, process.env.REFRESH_TOKEN_SECRET, { expiresIn: '2h' });
 
-    res.status(200).json({ message: 'Login successful', token });
+    await db.query('INSERT INTO tokens (user_id, refreshtoken) VALUES (?, ?)', [user.id, refreshToken]);
+
+    res.status(200).json({ message: 'Login successful', accessToken, refreshToken });
   } catch (error) {
     res.status(500).json({ error: 'Internal server error' });
   }
 };
+
+// Token refresh controller
+const refreshToken = (db: Pool) => async (req: Request, res: Response) => {
+  const { token } = req.body;
+  if (!token) return res.status(401).json({ error: 'Refresh Token required' });
+
+  try {
+    // Check if the token is in the database
+    const [rows] = await db.query('SELECT * FROM tokens WHERE token = ?', [token]);
+    if ((rows as any[]).length === 0) {
+      return res.status(403).json({ error: 'Invalid Refresh Token' });
+    }
+
+    const user = jwt.verify(token, process.env.REFRESH_TOKEN_SECRET) as { userId: number };
+    const accessToken = jwt.sign({ userId: user.userId }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '15m' });
+    res.status(200).json({ accessToken });
+  } catch (error) {
+    res.status(403).json({ error: 'Invalid Refresh Token' });
+  }
+};
+
+// User logout controller
+const logout = (db: Pool) => async (req: Request, res: Response) => {
+  const { token } = req.body;
+  try {
+    // Delete refresh token from database
+    await db.query('DELETE FROM tokens WHERE token = ?', [token]);
+    res.status(200).json({ message: 'Logout successful' });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to logout' });
+  }
+};
+
+export { register, login, refreshToken, logout };
