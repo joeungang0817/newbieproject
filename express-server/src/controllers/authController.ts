@@ -5,6 +5,7 @@ import { Pool } from 'mysql2/promise';
 import { z } from 'zod';
 import * as dotenv from "dotenv";
 import process from "process";
+import crypto from 'crypto';
 dotenv.config();
 
 const userSchema = z.object({
@@ -12,6 +13,11 @@ const userSchema = z.object({
   password: z.string().min(6),
 });
 // User registration controller
+
+// Refresh Token 생성 함수
+const generateRefreshToken = () => {
+  return crypto.randomBytes(40).toString('hex');
+};
 
 const register = (db: Pool) => async (req: Request, res: Response) => {
   try {
@@ -60,11 +66,22 @@ const login = (db: Pool) => async (req: Request, res: Response) => {
 
     // JWT generation
     const accessToken = jwt.sign({ userId: user.id }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '15m' });
-    const refreshToken = jwt.sign({ userId: user.id }, process.env.REFRESH_TOKEN_SECRET, { expiresIn: '2h' });
 
-    await db.query('INSERT INTO tokens (user_id, refreshtoken) VALUES (?, ?)', [user.id, refreshToken]);
+    // Generate and hash refresh token
+    const refreshToken = generateRefreshToken();
+    const hashedRefreshToken = await bcrypt.hash(refreshToken, 10);
 
-    res.status(200).json({ message: 'Login successful', accessToken, refreshToken });
+    await db.query('INSERT INTO tokens (user_id, refresh_token) VALUES (?, ?)', [user.id, hashedRefreshToken]);
+
+    // 클라이언트에 HttpOnly 쿠키로 저장
+    res.cookie('refreshToken', refreshToken, {
+      httpOnly: true,
+      secure: true, // HTTPS를 사용하는 경우
+      sameSite: 'strict',
+      maxAge: 2 * 60 * 60 * 1000, // 2시간
+    });
+
+    res.status(200).json({ message: 'Login successful', accessToken });
   } catch (error) {
     res.status(500).json({ error: 'Internal server error' });
   }
@@ -72,18 +89,36 @@ const login = (db: Pool) => async (req: Request, res: Response) => {
 
 // Token refresh controller
 const refreshToken = (db: Pool) => async (req: Request, res: Response) => {
-  const { token } = req.body;
-  if (!token) return res.status(401).json({ error: 'Refresh Token required' });
+  const refreshToken = req.cookies.refreshToken;
+  if (!refreshToken) return res.status(401).json({ error: 'Refresh Token required' });
 
   try {
-    // Check if the token is in the database
-    const [rows] = await db.query('SELECT * FROM tokens WHERE token = ?', [token]);
-    if ((rows as any[]).length === 0) {
+    // 데이터베이스에서 해당 토큰 조회
+    const [rows] = await db.query('SELECT * FROM tokens WHERE user_id = ?', [req.userId]);
+    const tokenEntry = (rows as any[]).find(async (tokenRow) => {
+      return await bcrypt.compare(refreshToken, tokenRow.refresh_token);
+    });
+
+    if (!tokenEntry) {
       return res.status(403).json({ error: 'Invalid Refresh Token' });
     }
 
-    const user = jwt.verify(token, process.env.REFRESH_TOKEN_SECRET) as { userId: number };
-    const accessToken = jwt.sign({ userId: user.userId }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '15m' });
+    // 새로운 Access Token 및 Refresh Token 발급 (토큰 회전)
+    const accessToken = jwt.sign({ userId: req.userId }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '15m' });
+    const newRefreshToken = generateRefreshToken();
+    const hashedNewRefreshToken = await bcrypt.hash(newRefreshToken, 10);
+
+    // 데이터베이스에 새로운 Refresh Token 저장하고 이전 토큰 삭제
+    await db.query('UPDATE tokens SET refresh_token = ? WHERE id = ?', [hashedNewRefreshToken, tokenEntry.id]);
+
+    // 새로운 Refresh Token을 클라이언트 쿠키에 저장
+    res.cookie('refreshToken', newRefreshToken, {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'strict',
+      maxAge: 2 * 60 * 60 * 1000,
+    });
+
     res.status(200).json({ accessToken });
   } catch (error) {
     res.status(403).json({ error: 'Invalid Refresh Token' });
@@ -92,10 +127,12 @@ const refreshToken = (db: Pool) => async (req: Request, res: Response) => {
 
 // User logout controller
 const logout = (db: Pool) => async (req: Request, res: Response) => {
-  const { token } = req.body;
+  const refreshToken = req.cookies.refreshToken;
   try {
-    // Delete refresh token from database
-    await db.query('DELETE FROM tokens WHERE token = ?', [token]);
+    // 데이터베이스에서 Refresh Token 삭제
+    await db.query('DELETE FROM tokens WHERE user_id = ?', [req.userId]);
+    // 클라이언트 쿠키에서 Refresh Token 삭제
+    res.clearCookie('refreshToken');
     res.status(200).json({ message: 'Logout successful' });
   } catch (error) {
     res.status(500).json({ error: 'Failed to logout' });

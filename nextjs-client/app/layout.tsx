@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
+import Link from "next/link";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -28,6 +29,11 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
+        {/* 로고 */}
+        <Link href="/">
+          <h1 className="text-4xl font-bold cursor-pointer">Healcome_KAIST</h1>
+        </Link>
+        {/* 페이지 컨텐츠 */}
         {children}
       </body>
     </html>
