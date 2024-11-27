@@ -1,12 +1,18 @@
-import { Router } from 'express';
-import { login, register } from '../controllers/authController';
+import { Request, Response} from 'express';
+import jwt from 'jsonwebtoken';
+import { Pool } from 'mysql2/promise';
+import express from 'express';
+import { register,login,refreshToken,logout } from '../controllers/authController';
 
-const router = Router();
+const authRouter = (db: Pool) => {
+  const router = express.Router();
 
-// User registration route
-router.post('/register', register);
+  router.post('/register', register(db));
+  router.post('/login', login(db));
+  router.post('/refresh-token', refreshToken(db));
+  router.post('/logout', logout(db));
 
-// User login route
-router.post('/login', login);
+  return router;
+};
 
-export default router;
+export default authRouter;
