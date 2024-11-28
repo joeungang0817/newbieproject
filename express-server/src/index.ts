@@ -1,12 +1,13 @@
 import express from "express";
 import cors, { CorsOptions } from "cors";
 import mysql from "mysql2/promise";
-import path from "path";
 
 import statusRouter from "./routes/status";
 import authRouter from "./routes/auth";
 import statuslog from "./middlewares/statuslog";
 import authMiddleware from "./middlewares/auth"
+import dotenv from 'dotenv';
+dotenv.config();
 
 const app = express();
 const port = 8080;
@@ -16,10 +17,10 @@ app.use(express.json());
 const whitelist = ["http://localhost:3000"];
 
 const db = mysql.createPool({
-  host: "localhost",
-  user: "root", // MySQL 사용자 이름
-  password: process.env.REACT_APP_DB_PASSWORD, // MySQL 비밀번호
-  database: "healcome_KAIST_DB", // 데이터베이스 이름
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER, // MySQL 사용자 이름
+  password: process.env.DB_PASSWORD, // MySQL 비밀번호
+  database: "healcome_kaist", // 데이터베이스 이름
 });
 
 async function testDbConnection() {
@@ -31,16 +32,17 @@ async function testDbConnection() {
   }
 }
 
-const corsOptions = {
-  origin: (origin, callback) => {
-    if (!origin || whitelist.indexOf(origin) !== -1) {
+const corsOptions: CorsOptions = {
+  origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
+    // 도메인 허용 로직
+    if (origin && whitelist.includes(origin)) {
       callback(null, true);
     } else {
-      callback(new Error("Not allowed by CORS"));
+      callback(new Error("허용되지 않은 출처입니다."), false);
     }
   },
   credentials: true,
-} satisfies CorsOptions;
+};
 
 testDbConnection();
 
