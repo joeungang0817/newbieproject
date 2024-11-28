@@ -6,7 +6,7 @@ import { Pool } from 'mysql2/promise';
 import bcrypt from 'bcrypt';
 dotenv.config();
 
-const authMiddleware = (db: Pool) => async (req: Request, res: Response, next: NextFunction) => {
+const authMiddleware(db: Pool) => async (req: Request, res: Response, next: NextFunction) => {
   const token = req.cookies.jwt; // 쿠키에서 JWT 토큰 가져오기
   if (!token) {
     return res.status(401).json({ error: 'Unauthorized' });
