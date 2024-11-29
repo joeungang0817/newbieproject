@@ -8,8 +8,8 @@ import crypto from 'crypto';
 dotenv.config();
 
 const userSchema = z.object({
-  email: z.string().email(),
-  password: z.string().min(6),
+  email: z.string(),
+  password: z.string(),
 });
 
 export default function authRouter(db: Pool) {
@@ -23,31 +23,34 @@ export default function authRouter(db: Pool) {
   const registerHandler: RequestHandler = async (req, res) => {
     try {
       const { email, password } = userSchema.parse(req.body);
-
+  
       // 사용자 존재 여부 확인
       const [existingUser] = await db.query('SELECT * FROM users WHERE email = ?', [email]);
       if ((existingUser as any[]).length > 0) {
-        res.status(400).json({ error: 'User already exists' });
-        return; // 반환값 없음
+        res.status(400).json({ error: '이미 등록된 이메일입니다.' });
+        return;
       }
-
+  
       // 비밀번호 해싱
       const saltRounds = 10;
       const hashedPassword = await bcrypt.hash(password, saltRounds);
-
+  
       // 사용자 생성
-      const [result] = await db.query('INSERT INTO users (email, password) VALUES (?, ?)', [
+      const [result] = await db.query('INSERT INTO users (email, password, name) VALUES (?, ?, ?)', [
         email,
         hashedPassword,
+        'user',
       ]);
-
+  
       res.status(201).json({
         message: 'User registered successfully',
       });
     } catch (error) {
+      console.error('Register Handler Error:', error); // 오류 로깅
       res.status(500).json({ error: 'Internal server error' });
     }
   };
+  
 
   // 로그인 핸들러
   const loginHandler: RequestHandler = async (req, res) => {
@@ -58,14 +61,14 @@ export default function authRouter(db: Pool) {
       const [rows] = await db.query('SELECT * FROM users WHERE email = ?', [email]);
       const user = (rows as any[])[0];
       if (!user) {
-        res.status(404).json({ error: 'User not found' });
+        res.status(404).json({ error: '등록되지 않은 이메일입니다.' });
         return;
       }
 
       // 비밀번호 검증
       const isPasswordValid = await bcrypt.compare(password, user.password);
       if (!isPasswordValid) {
-        res.status(401).json({ error: 'Invalid credentials' });
+        res.status(401).json({ error: '비밀번호가 틀렸습니다.' });
         return;
       }
 
@@ -88,12 +91,11 @@ export default function authRouter(db: Pool) {
       // 클라이언트에 Refresh Token을 쿠키로 설정
       res.cookie('refreshToken', refreshToken, {
         httpOnly: true,
-        secure: true, // HTTPS를 사용하는 경우
         sameSite: 'strict',
         maxAge: 2 * 60 * 60 * 1000, // 2시간
       });
 
-      res.status(200).json({ message: 'Login successful', accessToken });
+      res.status(200).json({ accessToken });
     } catch (error) {
       res.status(500).json({ error: 'Internal server error' });
     }
@@ -169,7 +171,7 @@ export default function authRouter(db: Pool) {
   };
 
   // 라우트 설정
-  router.post('/register', registerHandler);
+  router.post('/signup', registerHandler);
   router.post('/login', loginHandler);
   router.post('/refresh-token', refreshTokenHandler);
   router.post('/logout', logoutHandler);
