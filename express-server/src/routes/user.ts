@@ -76,7 +76,7 @@ export default function userRouter(db: Pool) {
       const total = newSquat + newBench + newDead;
       let newTier = 'Beginner';
 
-      if (total >= 500) newTier = 'expert';
+      if (total >= 500) newTier = 'Expert';
       else if (total >= 400) newTier = 'advanced';
       else if (total >= 250) newTier = 'Intermediate';
       else newTier = 'Beginner';

@@ -3,16 +3,16 @@
 
 import React, { useState, useEffect } from 'react';
 import axiosInstance from '@/app/utils/axiosInstance';
+import { FaUserCircle } from 'react-icons/fa';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { SAPIBase } from '../lib/api';
 
-const tierImages: { [key: number]: string } = {
-  1: '/images/tier1.png',
-  2: '/images/tier2.png',
-  3: '/images/tier3.png',
-  4: '/images/tier4.png',
-  5: '/images/tier5.png',
+const tierImages: { [key: string]: string } = {
+  Beginner: '/images/tier1.png',
+  Intermediate: '/images/tier2.png',
+  Advanced: '/images/tier3.png',
+  Expert: '/images/tier4.png',
 };
 
 const UserPage = () => {
@@ -124,145 +124,172 @@ const UserPage = () => {
   };
 
   if (isLoading) {
-    return <p>로딩 중...</p>;
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-gray-200">
+        <p className="text-xl text-black">로딩 중...</p>
+      </div>
+    );
   }
 
   if (error) {
-    return <p className="text-red-500">{error}</p>;
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-gray-200">
+        <p className="text-xl text-red-500">{error}</p>
+      </div>
+    );
   }
 
   return (
-    <div className="max-w-2xl mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-4">사용자 정보</h1>
+    <div className="min-h-screen bg-gray-200 flex items-center justify-center p-4">
+      <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-3xl">
+        <h1 className="text-3xl font-bold mb-6 text-center text-black">사용자 정보</h1>
 
-      {/* 이름 섹션 */}
-      <div className="mb-6">
-        <h2 className="text-xl font-semibold">이름</h2>
-        {isEditingName ? (
-          <div className="flex items-center mt-2">
-            <input
-              type="text"
-              value={editName}
-              onChange={(e) => setEditName(e.target.value)}
-              className="border p-2 mr-2 flex-1"
-            />
-            <button
-              onClick={handleNameSave}
-              className="bg-blue-500 text-white px-4 py-2 rounded mr-2"
-            >
-              저장
-            </button>
-            <button
-              onClick={handleNameEditToggle}
-              className="bg-gray-300 text-gray-700 px-4 py-2 rounded"
-            >
-              취소
-            </button>
+        {/* 이름 섹션 */}
+        <div className="bg-gray-100 rounded-lg p-4 mb-6 flex items-center justify-between">
+          <div className="flex items-center">
+            <FaUserCircle className="text-4xl text-gray-700 mr-4" />
+            {isEditingName ? (
+              <input
+                type="text"
+                value={editName}
+                onChange={(e) => setEditName(e.target.value)}
+                className="border p-2 rounded w-full text-black bg-gray-100 focus:outline-none"
+                style={{ fontSize: '1.25rem' }} // 텍스트 크기 일관성 유지
+              />
+            ) : (
+              <h2 className="text-2xl font-semibold text-black">{user.name}</h2>
+            )}
           </div>
-        ) : (
-          <div className="flex items-center mt-2">
-            <span className="mr-4">{user.name}</span>
-            <button
-              onClick={handleNameEditToggle}
-              className="bg-green-500 text-white px-4 py-2 rounded"
-            >
-              변경
-            </button>
-          </div>
-        )}
-      </div>
-
-      {/* 3대 운동 섹션 */}
-      <div className="mb-6">
-        <h2 className="text-xl font-semibold">3대 운동</h2>
-        {isEditingStrength ? (
-          <div className="mt-2">
-            <div className="flex items-center mb-2">
-              <label className="w-20">스쿼트:</label>
-              <input
-                type="number"
-                value={editSquat}
-                onChange={(e) => setEditSquat(parseInt(e.target.value))}
-                className="border p-2 flex-1"
-              />
-            </div>
-            <div className="flex items-center mb-2">
-              <label className="w-20">벤치:</label>
-              <input
-                type="number"
-                value={editBench}
-                onChange={(e) => setEditBench(parseInt(e.target.value))}
-                className="border p-2 flex-1"
-              />
-            </div>
-            <div className="flex items-center mb-4">
-              <label className="w-20">데드:</label>
-              <input
-                type="number"
-                value={editDead}
-                onChange={(e) => setEditDead(parseInt(e.target.value))}
-                className="border p-2 flex-1"
-              />
-            </div>
-            <div className="flex items-center">
+          <div>
+            {isEditingName ? (
+              <>
+                <button
+                  onClick={handleNameSave}
+                  className="bg-blue-500 text-white px-4 py-2 rounded mr-2 hover:bg-blue-600 transition-colors duration-200"
+                >
+                  저장
+                </button>
+                <button
+                  onClick={handleNameEditToggle}
+                  className="bg-gray-300 text-black px-4 py-2 rounded hover:bg-gray-400 transition-colors duration-200"
+                >
+                  취소
+                </button>
+              </>
+            ) : (
               <button
-                onClick={handleStrengthSave}
-                className="bg-blue-500 text-white px-4 py-2 rounded mr-2"
+                onClick={handleNameEditToggle}
+                className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors duration-200"
               >
-                저장
+                변경
               </button>
+            )}
+          </div>
+        </div>
+
+        {/* 3대 운동 섹션 */}
+        <div className="bg-gray-100 rounded-lg p-4 mb-6">
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-2xl font-semibold text-black">3대 운동</h2>
+            {isEditingStrength ? (
+              <div>
+                <button
+                  onClick={handleStrengthSave}
+                  className="bg-blue-500 text-white px-4 py-2 rounded mr-2 hover:bg-blue-600 transition-colors duration-200"
+                >
+                  저장
+                </button>
+                <button
+                  onClick={handleStrengthEditToggle}
+                  className="bg-gray-300 text-black px-4 py-2 rounded hover:bg-gray-400 transition-colors duration-200"
+                >
+                  취소
+                </button>
+              </div>
+            ) : (
               <button
                 onClick={handleStrengthEditToggle}
-                className="bg-gray-300 text-gray-700 px-4 py-2 rounded"
+                className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors duration-200"
               >
-                취소
+                변경
               </button>
+            )}
+          </div>
+          {isEditingStrength ? (
+            <div className="space-y-4">
+              <div className="flex items-center">
+                <label className="w-24 text-black">스쿼트:</label>
+                <input
+                  type="number"
+                  value={editSquat}
+                  onChange={(e) => setEditSquat(parseInt(e.target.value) || 0)}
+                  className="border p-2 rounded w-full text-black bg-gray-100 focus:outline-none"
+                  style={{ fontSize: '1.25rem' }} // 텍스트 크기 일관성 유지
+                />
+              </div>
+              <div className="flex items-center">
+                <label className="w-24 text-black">벤치프레스:</label>
+                <input
+                  type="number"
+                  value={editBench}
+                  onChange={(e) => setEditBench(parseInt(e.target.value) || 0)}
+                  className="border p-2 rounded w-full text-black bg-gray-100 focus:outline-none"
+                  style={{ fontSize: '1.25rem' }} // 텍스트 크기 일관성 유지
+                />
+              </div>
+              <div className="flex items-center">
+                <label className="w-24 text-black">데드리프트:</label>
+                <input
+                  type="number"
+                  value={editDead}
+                  onChange={(e) => setEditDead(parseInt(e.target.value) || 0)}
+                  className="border p-2 rounded w-full text-black bg-gray-100 focus:outline-none"
+                  style={{ fontSize: '1.25rem' }} // 텍스트 크기 일관성 유지
+                />
+              </div>
             </div>
-          </div>
-        ) : (
-          <div className="mt-2">
-            <p>
-              스쿼트: <strong>{user.squat}</strong> kg
-            </p>
-            <p>
-              벤치: <strong>{user.bench}</strong> kg
-            </p>
-            <p>
-              데드: <strong>{user.dead}</strong> kg
-            </p>
-            <button
-              onClick={handleStrengthEditToggle}
-              className="mt-2 bg-green-500 text-white px-4 py-2 rounded"
-            >
-              변경
-            </button>
-          </div>
-        )}
-      </div>
+          ) : (
+            <div className="space-y-2">
+              <p className="text-black">
+                스쿼트: <span className="font-semibold text-black">{user.squat} kg</span>
+              </p>
+              <p className="text-black">
+                벤치프레스: <span className="font-semibold text-black">{user.bench} kg</span>
+              </p>
+              <p className="text-black">
+                데드리프트: <span className="font-semibold text-black">{user.dead} kg</span>
+              </p>
+            </div>
+          )}
+        </div>
 
-      {/* Tier 섹션 */}
-      <div className="mb-6">
-        <h2 className="text-xl font-semibold">Tier</h2>
-        <div className="flex items-center mt-2">
-          <span className="mr-4">Tier {user.tier}</span>
+        {/* Tier 섹션 */}
+        <div className="bg-gray-100 rounded-lg p-4 mb-6 flex items-center justify-between">
+          <div>
+            <h2 className="text-2xl font-semibold text-black mb-2">Tier</h2>
+            <p className="text-3xl font-semibold text-black">{user.tier}</p>
+          </div>
           {tierImages[user.tier] && (
             <Image
               src={tierImages[user.tier]}
               alt={`Tier ${user.tier}`}
-              width={50}
-              height={50}
+              width={100}
+              height={100}
+              className="object-contain"
             />
           )}
         </div>
-      </div>
 
-      {/* 대시보드로 돌아가기 버튼 */}
-      <button
-        onClick={handleBackToDashboard}
-        className="bg-purple-500 text-white px-4 py-2 rounded"
-      >
-        대시보드로 돌아가기
-      </button>
+        {/* 대시보드로 돌아가기 버튼 */}
+        <div className="flex justify-center">
+          <button
+            onClick={handleBackToDashboard}
+            className="bg-blue-500 text-white px-6 py-3 rounded-lg hover:bg-blue-600 transition-colors duration-200"
+          >
+            대시보드로 돌아가기
+          </button>
+        </div>
+      </div>
     </div>
   );
 };
