@@ -2,47 +2,44 @@
 
 import Link from 'next/link';
 import NavLinks from '@/app/ui/dashboard/nav-links';
+import axiosInstance from '@/app/utils/axiosInstance';
 import { FaUserCircle } from 'react-icons/fa';
 import React, { useState, useEffect } from 'react';
 import axios from "axios";
 import { SAPIBase } from "@/app/lib/api";
 import { useRouter } from 'next/navigation';
 
+axios.defaults.withCredentials = true; 
 export default function SideNav() {
   const [userName, setUserName] = useState<string>('');
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
 
-  const User_name = async () =>{
-    // 사용자 정보를 가져오는 비동기 함수
-    try {
-        const response = await axios.get(`${SAPIBase}/dashboard/user`,);
-
-        if (!response.ok) {
-            throw new Error('사용자 정보를 가져오는 데 실패했습니다.');
-        }
-
-        const data = await response.json();
-        setUserName(data.name);
-
-    } catch (err: any) {
-        setError(err.message);
-
-    } finally {
+  useEffect(() => {
+    const fetchUserName = async () => {
+      try {
+        const response = await axiosInstance.get(`${SAPIBase}/user/info`); // baseURL이 이미 설정되어 있으므로 경로만 작성
+        const { data } = response;
+        setUserName(data.user.name);
+      } catch (err: any) {
+        setError(err.response?.data?.error || '사용자 정보를 가져오는 데 실패했습니다.');
+      } finally {
         setIsLoading(false);
-    }
+      }
     };
-    
-  User_name();
+
+    fetchUserName();
+  }, []); 
 
   const handleSignOut = async () => {
     try {
-      const response = await axios.post(`${SAPIBase}/auth/logout`,);
+      const response = await axios.post(`${SAPIBase}/auth/logout`);
 
-      if (response.ok) {
+      if (response) {
         // 로그아웃 성공 시 로그인 페이지로 이동
-        router.push('/login');
+        alert("로그아웃 되었습니다.");
+        router.push('/');
       } else {
         throw new Error('로그아웃에 실패했습니다.');
       }

@@ -82,11 +82,16 @@ export default function authRouter(db: Pool) {
       // Refresh Token 생성 및 저장
       const refreshToken = generateRefreshToken();
       const hashedRefreshToken = await bcrypt.hash(refreshToken, 10);
-
       await db.query('INSERT INTO tokens (user_id, refresh_token) VALUES (?, ?)', [
         user.id,
         hashedRefreshToken,
       ]);
+
+      res.cookie('accessToken', accessToken, {
+        httpOnly: true, // 프로덕션 환경에서만 true
+        sameSite: 'strict', // 또는 'lax'
+        maxAge: 5 * 60 * 1000, // 15분
+      });
 
       // 클라이언트에 Refresh Token을 쿠키로 설정
       res.cookie('refreshToken', refreshToken, {
@@ -95,58 +100,9 @@ export default function authRouter(db: Pool) {
         maxAge: 2 * 60 * 60 * 1000, // 2시간
       });
 
-      res.status(200).json({ accessToken });
+      res.status(200).json({ message:'Login successful'});
     } catch (error) {
       res.status(500).json({ error: 'Internal server error' });
-    }
-  };
-
-  // 토큰 갱신 핸들러
-  const refreshTokenHandler: RequestHandler = async (req, res) => {
-    const refreshToken = req.cookies.refreshToken;
-    if (!refreshToken) {
-      res.status(401).json({ error: 'Refresh Token required' });
-      return;
-    }
-
-    try {
-      // 데이터베이스에서 해당 토큰 조회
-      const [rows] = await db.query('SELECT * FROM tokens WHERE refresh_token = ?', [refreshToken]);
-      const tokenEntry = (rows as any[])[0];
-
-      if (!tokenEntry) {
-        res.status(403).json({ error: 'Invalid Refresh Token' });
-        return;
-      }
-
-      const userId = tokenEntry.user_id;
-
-      // 새로운 Access Token 및 Refresh Token 발급
-      const secret = process.env.ACCESS_TOKEN_SECRET;
-      if (!secret) {
-        throw new Error('ACCESS_TOKEN_SECRET is not defined');
-      }
-      const accessToken = jwt.sign({ userId }, secret, { expiresIn: '15m' });
-      const newRefreshToken = generateRefreshToken();
-      const hashedNewRefreshToken = await bcrypt.hash(newRefreshToken, 10);
-
-      // 데이터베이스에 새로운 Refresh Token 저장하고 이전 토큰 업데이트
-      await db.query('UPDATE tokens SET refresh_token = ? WHERE id = ?', [
-        hashedNewRefreshToken,
-        tokenEntry.id,
-      ]);
-
-      // 새로운 Refresh Token을 클라이언트 쿠키에 저장
-      res.cookie('refreshToken', newRefreshToken, {
-        httpOnly: true,
-        secure: true,
-        sameSite: 'strict',
-        maxAge: 2 * 60 * 60 * 1000,
-      });
-
-      res.status(200).json({ accessToken });
-    } catch (error) {
-      res.status(403).json({ error: 'Invalid Refresh Token' });
     }
   };
 
@@ -163,6 +119,7 @@ export default function authRouter(db: Pool) {
       await db.query('DELETE FROM tokens WHERE refresh_token = ?', [refreshToken]);
 
       // 클라이언트 쿠키에서 Refresh Token 삭제
+      res.clearCookie('accessToken');
       res.clearCookie('refreshToken');
       res.status(200).json({ message: 'Logout successful' });
     } catch (error) {
@@ -173,7 +130,6 @@ export default function authRouter(db: Pool) {
   // 라우트 설정
   router.post('/signup', registerHandler);
   router.post('/login', loginHandler);
-  router.post('/refresh-token', refreshTokenHandler);
   router.post('/logout', logoutHandler);
 
   return router;

@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation';
 import { SAPIBase } from "@/app/lib/api";
 import Link from 'next/link';
 
+axios.defaults.withCredentials = true; 
 export default function Login() {
   const router = useRouter();
   const [email, setEmail] = useState<string>('');
