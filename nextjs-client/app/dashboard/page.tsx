@@ -49,7 +49,7 @@ export default function Home() {
             <p className="text-gray-700 mb-4">
               KAIST 헬스장 정보를 저장하고, 운동 계획을 세워보세요.
             </p>
-            <Link href="/gym">
+            <Link href="/dashboard/gym">
               <button className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-700">
                 내 헬스장 추가하기
               </button>
@@ -70,7 +70,7 @@ export default function Home() {
             <p className="text-gray-700 mb-4">
               헬스장과 운동 세트 수, 중량을 선택하여 나만의 운동 루틴을 만들어보세요.
             </p>
-            <Link href="/routine">
+            <Link href="/dashboard/routine">
               <button className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-700">
                 내 운동루틴 추가하기
               </button>
@@ -91,7 +91,7 @@ export default function Home() {
             <p className="text-gray-700 mb-4">
               이전에 했던 운동 루틴들을 한눈에 확인하세요.
             </p>
-            <Link href="/log">
+            <Link href="/dashboard/log">
               <button className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-700">
                 Log 보기
               </button>

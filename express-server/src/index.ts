@@ -6,6 +6,7 @@ import cookieParser from  "cookie-parser";
 import statusRouter from "./routes/status";
 import userRouter from "./routes/user"
 import authRouter from "./routes/auth";
+import gymsRouter from "./routes/gyms"
 import statuslog from "./middlewares/statuslog";
 import authMiddleware from "./middlewares/auth"
 
@@ -59,7 +60,8 @@ app.use(cors(corsOptions));
 app.use(statuslog);
 app.use("/status", statusRouter);
 app.use("/auth", authRouter(db));
-app.use("/user", authMiddleware(db),userRouter(db))
+app.use("/user", authMiddleware(db),userRouter(db));
+app.use("/gyms", authMiddleware(db), gymsRouter(db));
 
 app.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`);
