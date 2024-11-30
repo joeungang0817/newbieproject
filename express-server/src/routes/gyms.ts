@@ -70,7 +70,7 @@ export default function gymsRouter(db: Pool) {
           'INSERT INTO gyms (name, equipment, notes, user_id) VALUES (?, ?, ?, ?)',
           [name, JSON.stringify(equipment), notes, postid]
         );
-        res.status(201).json({ message:'Gym Post Successful' });
+        res.status(201).json({ message:'Gym Post Successful'});
         return;
   
       } catch (error) {
@@ -132,7 +132,27 @@ export default function gymsRouter(db: Pool) {
         return;
       }
     }
-  
+
+    const deleteAllGymsHandler: RequestHandler = async (req, res) => {
+      try {
+        const userId = req.userId; // authMiddleware에서 설정한 userId 사용
+        if (!userId) {
+          res.status(400).json({ message: 'User ID is required' });
+          return;
+        }
+    
+        await db.execute('DELETE FROM gyms WHERE user_id = ?', [userId]);
+        res.status(200).json({ message: 'All gyms deleted successfully' });
+        return;
+      } catch (error) {
+        console.error('Delete All Gyms Error:', error);
+        res.status(500).json({ message: 'Failed to delete all gyms' });
+        return;
+      }
+    };
+    
+    // 전체 삭제 라우트 추가
+    router.delete('/all', deleteAllGymsHandler);
     router.get('/', getGymsHandler);
     router.post('/',postGymsHandler);
     router.patch('/:id', updateGymsHandler);
