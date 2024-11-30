@@ -9,7 +9,6 @@ const links = [
   { name: 'Home', href: '/dashboard' },
   { name: 'gym', href: '/dashboard/gym' },
   { name: 'routine', href: '/dashboard/routine' },
-  { name: 'log', href: '/dashboard/log' },
 ];
 
 export default function NavLinks() {

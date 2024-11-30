@@ -96,7 +96,7 @@ const handleAddGym = async () => {
       return;
     }
     if (newGym.equipment.length === 0 || newGym.equipment.some((item) => item.trim() === '')) {
-      alert('운동기구를 하나 이상 입력해주세요.');
+      alert('헬스장을 추가하기 위해선 운동기구를 하나 이상, 각 항목마다 공란이 없도록 입력해주세요.');
       return;
     }
   
@@ -123,7 +123,7 @@ const handleAddGym = async () => {
       editGym.equipment.length === 0 ||
       editGym.equipment.some((item) => item.trim() === '')
     ) {
-      alert('운동기구를 하나 이상 입력해주세요.');
+      alert('헬스장을 추가하기 위해선 운동기구를 하나 이상, 각 항목마다 공란이 없도록 입력해주세요.');
       return;
     }
   
