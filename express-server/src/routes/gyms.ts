@@ -156,7 +156,7 @@ export default function gymsRouter(db: Pool) {
     router.get('/', getGymsHandler);
     router.post('/',postGymsHandler);
     router.patch('/:id', updateGymsHandler);
-    router.delete('/:id', deleteGymsHandler)
+    router.delete('/:id', deleteGymsHandler);
   
     return router;
   }

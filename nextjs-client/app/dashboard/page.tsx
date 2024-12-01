@@ -47,7 +47,7 @@ export default function Home() {
             </div>
             <h3 className="text-xl font-semibold mb-2 text-black">Gym</h3>
             <p className="text-gray-700 mb-4">
-              KAIST 헬스장 정보를 저장하고, 운동 계획을 세워보세요.
+              KAIST에 있는 헬스장 정보를 저장하고, 그 정보를 바탕으로 운동 계획을 세워보세요.
             </p>
             <Link href="/dashboard/gym">
               <button className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-700">
@@ -66,7 +66,7 @@ export default function Home() {
                 objectFit="contain"
               />
             </div>
-            <h3 className="text-xl font-semibold mb-2 text-black">Routine & Log</h3>
+            <h3 className="text-xl font-semibold mb-2 text-black">Routine</h3>
             <p className="text-gray-700 mb-4">
               헬스장과 운동 세트 수, 중량을 선택하여 나만의 운동 루틴을 만들고 사용해보세요.
             </p>
@@ -76,7 +76,31 @@ export default function Home() {
               </button>
             </Link>
           </div>
+
+          {/* log 기능 카드 */}
+          <div className="bg-white rounded-lg shadow-md p-6 w-80">
+            <div className="h-20 w-20 mx-auto mb-4 relative">
+              <Image
+                src="/images/log-icon.png"
+                alt="Routine"
+                layout="fill"
+                objectFit="contain"
+              />
+            </div>
+            <h3 className="text-xl font-semibold mb-2 text-black">Log</h3>
+            <p className="text-gray-700 mb-4">
+              지금까지 자신이 운동했던 기록들을 살펴보세요.
+            </p>
+            <Link href="/dashboard/routine">
+              <button className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-700">
+                내 운동루틴 추가하기
+              </button>
+            </Link>
+          </div>
+
         </div>
+
+        
       </section>
     </main>
   );

@@ -20,7 +20,6 @@ export default function SignUp() {
       alert('회원가입이 완료되었습니다. 로그인 페이지로 이동합니다.');
       router.push('/auth/login');
     } catch (error: any) {
-      console.error('Sign Up Error:', error);
       alert(error.response?.data?.error || '회원가입에 실패하였습니다.');
     }
   };
@@ -47,6 +46,7 @@ export default function SignUp() {
           <input
             type="password"
             placeholder="Password"
+            minLength={6}
             className="border border-gray-300 rounded-lg px-4 py-2 w-full text-black"
             value={password}
             onChange={(e) => setPassword(e.target.value)}

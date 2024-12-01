@@ -7,8 +7,9 @@ import clsx from 'clsx';
 // 네비게이션 링크 목록
 const links = [
   { name: 'Home', href: '/dashboard' },
-  { name: 'gym', href: '/dashboard/gym' },
-  { name: 'routine', href: '/dashboard/routine' },
+  { name: 'Gym', href: '/dashboard/gym' },
+  { name: 'Routine', href: '/dashboard/routine' },
+  { name: 'Log', href: '/dashboard/log' }
 ];
 
 export default function NavLinks() {

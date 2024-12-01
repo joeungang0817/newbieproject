@@ -7,6 +7,7 @@ import statusRouter from "./routes/status";
 import userRouter from "./routes/user"
 import authRouter from "./routes/auth";
 import gymsRouter from "./routes/gyms"
+import logsRouter from "./routes/logs";
 import routinesRouter from "./routes/routine";
 import statuslog from "./middlewares/statuslog";
 import authMiddleware from "./middlewares/auth"
@@ -64,6 +65,7 @@ app.use("/auth", authRouter(db));
 app.use("/user", authMiddleware(db),userRouter(db));
 app.use("/gyms", authMiddleware(db), gymsRouter(db));
 app.use("/routines",authMiddleware(db),routinesRouter(db));
+app.use('/logs', authMiddleware(db),logsRouter(db));
 
 app.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`);
