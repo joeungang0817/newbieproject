@@ -16,15 +16,16 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 const app = express();
-const port = 8080;
+const port = 20062;
 
 app.use(express.json());
 app.use(cookieParser());
 
-const whitelist = ["http://localhost:3000"];
+const whitelist = ["http://localhost:20082"];
 
 const db = mysql.createPool({
   host: process.env.DB_HOST,
+  port :3306,
   user: process.env.DB_USER, // MySQL 사용자 이름
   password: process.env.DB_PASSWORD, // MySQL 비밀번호
   database: process.env.DB_NAME, // 데이터베이스 이름
