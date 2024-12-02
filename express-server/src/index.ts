@@ -16,12 +16,12 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 const app = express();
-const port = 8080;
+const port = 20062;
 
 app.use(express.json());
 app.use(cookieParser());
 
-const whitelist = ["http://localhost:3000"];
+const whitelist = ["http://localhost:20082"];
 
 const db = mysql.createPool({
   host: process.env.DB_HOST,
