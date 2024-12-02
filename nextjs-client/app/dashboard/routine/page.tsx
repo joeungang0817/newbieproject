@@ -182,6 +182,11 @@ export default function RoutinesPage() {
       return;
     }
 
+    if (newRoutine.description.length === 0) {
+      alert('루틴 설명을 입력해주세요.');
+      return;
+    }
+
     try {
       await axiosInstance.post(`${SAPIBase}/routines`, {
         name: newRoutine.name,
@@ -209,6 +214,10 @@ export default function RoutinesPage() {
       alert('루틴을 수정하기 위해선 운동기구를 하나 이상, 각 항목마다 공란이 없도록 입력해주세요.');
       return;
     }
+    if (editRoutine.description.length === 0) {
+      alert('루틴 설명을 입력해주세요.');
+      return;
+    }
 
     try {
       await axiosInstance.patch(`${SAPIBase}/routines/${editRoutine.id}`, {
@@ -227,7 +236,7 @@ export default function RoutinesPage() {
 
   // 루틴 삭제 핸들러
   const handleDeleteRoutine = async (id: number) => {
-    if (!confirm('정말로 이 루틴을 삭제하시겠습니까?')) return;
+    if (!confirm('정말로 이 루틴을 삭제하시겠습니까? 이 루틴이 포함된 로그가 모두 삭제됩니다.')) return;
 
     try {
       await axiosInstance.delete(`${SAPIBase}/routines/${id}`);
@@ -239,7 +248,7 @@ export default function RoutinesPage() {
   };
 
   const handleDeleteAllRoutine = async () => {
-    if (!confirm('정말로 모든 루틴을 삭제하시겠습니까?')) return;
+    if (!confirm('정말로 모든 루틴을 삭제하시겠습니까? 이 루틴이 포함된 로그가 모두 삭제됩니다.')) return;
 
     try {
       await axiosInstance.delete(`${SAPIBase}/routines`);
@@ -757,7 +766,7 @@ export default function RoutinesPage() {
           <div className="p-4">
             <h2 className="text-xl font-bold mb-4 text-black">루틴 사용</h2>
             <h3 className="text-lg font-semibold text-black">{selectedRoutine.name}</h3>
-            <p className="mb-4 text-black">{selectedRoutine.description}</p>
+            <p className="mb-4 text-black break-words whitespace-normal">{selectedRoutine.description}</p>
             <label className="block text-lg font-medium mb-2 text-black">헬스장 선택</label>
             <select
               value={gymId}
