@@ -21,7 +21,7 @@ const port = 20062;
 app.use(express.json());
 app.use(cookieParser());
 
-const whitelist = ["http://localhost:20082"];
+const whitelist = ["http://newbies.sparcs.org:20082"];
 
 const db = mysql.createPool({
   host: process.env.DB_HOST,
@@ -69,5 +69,5 @@ app.use("/routines",authMiddleware(db),routinesRouter(db));
 app.use('/logs', authMiddleware(db),logsRouter(db));
 
 app.listen(port, () => {
-  console.log(`Server is running on http://localhost:${port}`);
+  console.log(`Server is running on http://newbies.sparcs.org:${port}`);
 });
