@@ -121,49 +121,47 @@ export default function LogsPage() {
             ) : (
                 <div className="w-full max-w-4xl">
                     {/* 로그 목록 */}
-                    <div className="bg-white p-6 rounded-lg shadow overflow-x-auto">
-                        <table className="min-w-full divide-y divide-gray-200">
+                    <div className="bg-white p-4 rounded-lg shadow overflow-x-auto">
+                        <table className="min-w-full table-auto">
                             <thead>
-                            <tr>
-                                <th className="px-6 py-4 text-left text-sm font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">루틴 이름</th>
-                                <th className="px-6 py-4 text-left text-sm font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">루틴 설명</th>
-                                <th className="px-6 py-4 text-left text-sm font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">운동 내용</th>
-                                <th className="px-6 py-4 text-left text-sm font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">사용 시간</th>
-                                <th className="px-6 py-4 text-left text-sm font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">삭제</th>
-                            </tr>
-                            </thead>
-                            <tbody className="bg-white divide-y divide-gray-200">
-                            {logs.map((log) => (
-                                <tr key={log.id} className="hover:bg-gray-100">
-                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{log.routine_name}</td>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700 truncate max-w-xs">
-                                    {log.routine_description}
-                                </td>
-                                <td className="px-6 py-4 text-sm text-gray-700">
-                                    <ul className="list-disc pl-5">
-                                    {log.exercises.map((exercise, index) => (
-                                        <li key={index} className="mb-1 break-words">
-                                        <span className="font-semibold">
-                                            {exercise.equipment_name} - {exercise.sets}세트 X {exercise.reps}회 @ {exercise.weight}kg
-                                        </span>
-                                        </li>
-                                    ))}
-                                    </ul>
-                                </td>
-                                <td className="px-6 py-4 text-center text-sm text-gray-700">
-                                    {new Date(log.used_at).toLocaleString()}
-                                </td>
-                                <td className="px-6 py-4 text-center text-sm text-gray-700">
-                                    <button
-                                    onClick={() => openDeleteModal(log)}
-                                    className="text-red-500 hover:text-red-700"
-                                    aria-label={`로그 삭제 ${log.id}`}
-                                    >
-                                    <TrashIcon className="h-5 w-5" />
-                                    </button>
-                                </td>
+                                <tr>
+                                    <th className="px-4 py-2 border whitespace-nowrap">루틴 이름</th>
+                                    <th className="px-4 py-2 border whitespace-nowrap">루틴 설명</th>
+                                    <th className="px-4 py-2 border whitespace-nowrap">운동 내용</th>
+                                    <th className="px-4 py-2 border whitespace-normal">사용 시간</th>
+                                    <th className="px-4 py-2 border whitespace-nowrap">삭제</th>
                                 </tr>
-                            ))}
+                            </thead>
+                            <tbody>
+                                {logs.map((log) => (
+                                    <tr key={log.id} className="hover:bg-gray-200">
+                                        <td className="px-4 py-2 border whitespace-nowrap">{log.routine_name}</td>
+                                        <td className="px-4 py-2 border whitespace-nowrap">{log.routine_description}</td>
+                                        <td className="px-4 py-2 border">
+                                            <ul className="list-disc pl-5">
+                                                {log.exercises.map((exercise, index) => (
+                                                    <li key={index} className="mb-1 break-words">
+                                                        <span className="font-semibold">
+                                                            {exercise.equipment_name} - {exercise.sets}세트 X {exercise.reps}회 @ {exercise.weight}kg
+                                                        </span>
+                                                    </li>
+                                                ))}
+                                            </ul>
+                                        </td>
+                                        <td className="px-4 py-2 border text-center whitespace-normal">
+                                            {new Date(log.used_at).toLocaleString()}
+                                        </td>
+                                        <td className="px-4 py-2 border text-center whitespace-nowrap">
+                                            <button
+                                                onClick={() => openDeleteModal(log)}
+                                                className="text-red-500 hover:text-red-700"
+                                                aria-label={`로그 삭제 ${log.id}`}
+                                            >
+                                                <TrashIcon className="h-5 w-5" />
+                                            </button>
+                                        </td>
+                                    </tr>
+                                ))}
                             </tbody>
                         </table>
 
@@ -199,7 +197,7 @@ export default function LogsPage() {
                 {logToDelete && (
                     <div className="p-4">
                         <h2 className="text-xl font-bold mb-4 text-black">로그 삭제</h2>
-                        <p className="mb-4 text-black">정말로 이 로그를 삭제하시겠습니까?</p>
+                        <p className="mb-4">정말로 이 로그를 삭제하시겠습니까?</p>
                         <div className="flex justify-end space-x-2">
                             <button
                                 onClick={handleDeleteLog}
