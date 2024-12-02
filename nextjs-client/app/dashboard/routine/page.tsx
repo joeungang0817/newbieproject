@@ -258,14 +258,10 @@ export default function RoutinesPage() {
     }
 
     try {
-        console.log('사용할 루틴 ID:', selectedRoutine.id);
-        console.log('선택한 헬스장 ID:', gymId);
-
         await axiosInstance.post(`${SAPIBase}/routines/logs`, { routineId: selectedRoutine.id, gymId: gymId });
         alert('루틴이 성공적으로 사용되었습니다.');
         closeUseModal();
     } catch (err: any) {
-        console.error('루틴 사용 에러:', err);
         alert(err.response?.data?.error || '루틴 사용에 실패했습니다.');
     }
 };
@@ -412,7 +408,7 @@ export default function RoutinesPage() {
                         {view === 'mine' && (
                           <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">공개 여부</th>
                         )}
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">운동기구</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">운동내용</th>
                         {view === 'all' && (
                           <>
                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">작성자</th>
@@ -456,7 +452,6 @@ export default function RoutinesPage() {
                                   className="flex items-center text-green-500 hover:text-green-700 font-bold"
                               >
                                   <EyeIcon className="h-5 w-5 mr-1" />
-                                  사용
                               </button>
                             </td>
                         </tr>
@@ -508,7 +503,7 @@ export default function RoutinesPage() {
             onChange={(e) => setNewRoutine({ ...newRoutine, description: e.target.value })}
             className="w-full border p-2 mb-2 text-black"
           />
-          <h3 className="text-lg font-semibold mb-2 text-black">운동기구</h3>
+          <h3 className="text-lg font-semibold mb-2 text-black">운동내용</h3>
           {newRoutine.equipment.map((eq, index) => (
             <div key={index} className="flex items-center space-x-2 mb-2">
               <input
@@ -557,7 +552,7 @@ export default function RoutinesPage() {
             className="flex items-center text-blue-500 hover:text-blue-700 mb-4"
           >
             <PlusIcon className="h-5 w-5 mr-1" />
-            운동기구 추가
+            운동내용 추가
           </button>
           <label className="flex items-center mb-4 text-black">
             <input
@@ -610,7 +605,7 @@ export default function RoutinesPage() {
               onChange={(e) => setEditRoutine({ ...editRoutine, description: e.target.value })}
               className="w-full border p-2 mb-2 text-black"
             />
-            <h3 className="text-lg font-semibold mb-2 text-black">운동기구</h3>
+            <h3 className="text-lg font-semibold mb-2 text-black">운동내용</h3>
             {editRoutine.equipment.map((eq, index) => (
               <div key={index} className="flex items-center space-x-2 mb-2">
                 <input
@@ -659,7 +654,7 @@ export default function RoutinesPage() {
               className="flex items-center text-blue-500 hover:text-blue-700 mb-4"
             >
               <PlusIcon className="h-5 w-5 mr-1" />
-              운동기구 추가
+              운동내용 추가
             </button>
             <label className="flex items-center mb-4 text-black">
               <input
@@ -711,7 +706,7 @@ export default function RoutinesPage() {
           <div className="p-4">
             <h2 className="text-xl font-bold mb-4 text-black">{selectedRoutine.name}</h2>
             <p className="mb-4 text-black">{selectedRoutine.description}</p>
-            <h4 className="text-md font-medium text-black">운동기구</h4>
+            <h4 className="text-md font-medium text-black">운동내용</h4>
             <ul className="list-disc list-inside mb-4 text-black">
               {selectedRoutine.equipment.map((eq, idx) => (
                 <li key={idx}>

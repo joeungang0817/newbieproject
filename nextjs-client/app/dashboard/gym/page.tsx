@@ -310,7 +310,7 @@ export default function GymsPage() {
         {selectedGym && (
           <div className="p-4">
             <h2 className="text-xl font-bold mb-4 text-black">{selectedGym.name}</h2>
-            <p className="mb-2 text-black">{selectedGym.notes}</p>
+            <p className="mb-2 text-black break-words whitespace-normal">{selectedGym.notes}</p>
             <p className="mb-4 text-black"><strong>운동기구</strong></p>
             <ul className="list-disc list-inside mb-4 text-black">
               {selectedGym.equipment.map((item, index) => (

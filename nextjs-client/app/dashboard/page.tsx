@@ -91,7 +91,7 @@ export default function Home() {
             <p className="text-gray-700 mb-4">
               지금까지 자신이 운동했던 기록들을 살펴보세요.
             </p>
-            <Link href="/dashboard/routine">
+            <Link href="/dashboard/log">
               <button className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-700">
                 내 운동루틴 추가하기
               </button>
