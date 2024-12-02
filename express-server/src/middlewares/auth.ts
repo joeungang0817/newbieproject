@@ -29,7 +29,7 @@ const authMiddleware = (db: Pool): RequestHandler => {
     try {
       if (!accessToken) {
         if (!refreshToken) {
-          res.status(401).json({ error: '자동로그인 기간이 지났습니다. 다시 로그인해주세요.' });
+          res.status(401).json({ error: '로그인 하지 않았거나, 자동로그인 기간이 지났습니다. 다시 로그인해주세요.' });
           return;
         } else {
           // 데이터베이스에서 Refresh Token 조회
